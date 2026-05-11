@@ -1,0 +1,32 @@
+{
+    "$schema": "https://www.schemastore.org/package.json",
+    "name": "basreng-az2",
+    "private": true,
+    "type": "module",
+    "scripts": {
+        "dev": "vite",
+        "build": "vite build"
+    },
+    "dependencies": {
+        "@iconify/vue": "^5.0.0",
+        "@vueuse/core": "^10.9.0",
+        "axios": "^1.6.8",
+        "chart.js": "^4.4.2",
+        "lucide-vue-next": "^0.363.0",
+        "pinia": "^2.1.7",
+        "vue": "^3.4.0",
+        "vue-chartjs": "^5.3.1",
+        "vue-router": "^4.3.0"
+    },
+    "devDependencies": {
+        "@tailwindcss/forms": "^0.5.3",
+        "@types/node": "^20.12.7",
+        "@vitejs/plugin-vue": "^6.0.0",
+        "autoprefixer": "^10.4.12",
+        "concurrently": "^9.0.1",
+        "postcss": "^8.4.31",
+        "tailwindcss": "^3.4.3",
+        "typescript": "^5.4.5",
+        "vite": "^8.0.0"
+    }
+}
