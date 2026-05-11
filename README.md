@@ -11,8 +11,15 @@
 ````bash
 php artisan update
 npm update
-npm run dev
+php artisan key:generate
+php artisan migrate
+````
+edit env 
+nyalain mysql 
+
+````bash
 php artisan serve
+npm run dev
 ````
 
 ## About Laravel
