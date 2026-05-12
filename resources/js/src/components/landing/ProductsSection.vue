@@ -20,12 +20,21 @@
         />
       </div>
 
-      <div v-else class="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        <ProductCard
-          v-for="product in products"
-          :key="product.id"
-          :product="product"
-        />
+      <div v-else>
+        <BaseCarousel
+          :items="products"
+          :items-per-view-desktop="4"
+          :items-per-view-mobile="1"
+          :gap="24"
+        >
+          <template #default="{ item: product }">
+            <div class="flex-shrink-0">
+              <div class="px-2">
+                <ProductCard :product="product" />
+              </div>
+            </div>
+          </template>
+        </BaseCarousel>
       </div>
     </div>
   </section>
@@ -36,6 +45,7 @@
 import { ref, onMounted } from 'vue'
 import { Package } from 'lucide-vue-next'
 import ProductCard from './ProductCard.vue'
+import BaseCarousel from '@/components/common/BaseCarousel.vue'
 import LoadingSpinner from '@/components/common/LoadingSpinner.vue'
 import EmptyState from '@/components/common/EmptyState.vue'
 import { productService } from '@/services/product.service'

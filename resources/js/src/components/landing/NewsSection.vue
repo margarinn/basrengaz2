@@ -20,26 +20,35 @@
         />
       </div>
 
-      <div v-else class="grid md:grid-cols-3 gap-6">
-        <article
-          v-for="item in news"
-          :key="item.id"
-          class="card group cursor-pointer"
+      <div v-else>
+        <BaseCarousel
+          :items="news"
+          :items-per-view-desktop="3"
+          :items-per-view-mobile="1"
+          :gap="24"
         >
-          <div class="relative overflow-hidden rounded-xl">
-            <img
-              :src="item.image"
-              :alt="item.title"
-              class="w-full h-48 object-cover transform group-hover:scale-110 transition-transform duration-500"
-            />
-          </div>
-          <div class="p-5">
-            <h3 class="text-lg font-semibold text-gray-900 mb-2 group-hover:text-primary transition-colors">
-              {{ item.title }}
-            </h3>
-            <p class="text-gray-600 text-sm line-clamp-2">{{ item.description }}</p>
-          </div>
-        </article>
+          <template #default="{ item: item }">
+            <article class="flex-shrink-0">
+              <div class="px-2">
+                <div class="card group cursor-pointer">
+                  <div class="relative overflow-hidden rounded-xl">
+                    <img
+                      :src="item.image"
+                      :alt="item.title"
+                      class="w-full h-48 object-cover transform group-hover:scale-110 transition-transform duration-500"
+                    />
+                  </div>
+                  <div class="p-5">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2 group-hover:text-primary transition-colors">
+                      {{ item.title }}
+                    </h3>
+                    <p class="text-gray-600 text-sm line-clamp-2">{{ item.description }}</p>
+                  </div>
+                </div>
+              </div>
+            </article>
+          </template>
+        </BaseCarousel>
       </div>
     </div>
   </section>
@@ -50,6 +59,7 @@ import { ref, onMounted } from 'vue'
 import { Newspaper } from 'lucide-vue-next'
 import LoadingSpinner from '@/components/common/LoadingSpinner.vue'
 import EmptyState from '@/components/common/EmptyState.vue'
+import BaseCarousel from '@/components/common/BaseCarousel.vue'
 import { newsService } from '@/services/news.service'
 import type { News } from '@/types'
 
