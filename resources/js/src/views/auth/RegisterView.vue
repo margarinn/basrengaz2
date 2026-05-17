@@ -114,7 +114,7 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 import { Mail, Lock, AlertCircle, User } from 'lucide-vue-next'
 import BaseInput from '@/components/common/BaseInput.vue'
 import BaseButton from '@/components/common/BaseButton.vue'
@@ -122,6 +122,7 @@ import { useAuthStore } from '@/stores/auth'
 import heroImg from '@/assets/images/gambar2.jpg'
 
 const router = useRouter()
+const route = useRoute()
 const authStore = useAuthStore()
 
 const showPassword = ref(false)
@@ -141,7 +142,12 @@ const handleSubmit = async () => {
   })
 
   if (success) {
-    router.push('/login')
+    const redirect = route.query.redirect as string
+    if (redirect) {
+      router.push({ path: '/login', query: { redirect } })
+    } else {
+      router.push('/login')
+    }
   }
 }
 </script>

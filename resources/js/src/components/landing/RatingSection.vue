@@ -74,12 +74,17 @@
         @submit="handleRatingSubmit"
         @delete="handleDeleteRating"
       />
+
+      <AuthPromptModal
+        v-model="isAuthPromptOpen"
+      />
     </div>
   </section>
 </template>
 
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import { Star, Quote, MessageSquare } from 'lucide-vue-next'
 import LoadingSpinner from '@/components/common/LoadingSpinner.vue'
 import EmptyState from '@/components/common/EmptyState.vue'
@@ -87,11 +92,17 @@ import BaseCarousel from '@/components/common/BaseCarousel.vue'
 import type { Rating, RatingFormData } from '@/types'
 import BaseButton from '../common/BaseButton.vue'
 import RatingModal from './RatingModal.vue'
+import AuthPromptModal from './AuthPromptModal.vue'
 import { ratingService } from '@/services/rating.service'
+import { useAuthStore } from '@/stores/auth'
 
-// ─── Data ──────────────────────────────────────────────────────────
+// ─── State ──────────────────────────────────────────────────────────
+const authStore = useAuthStore()
+const router = useRouter()
+const route = useRoute()
 const loading = ref(false)
 const isRatingModalOpen = ref(false)
+const isAuthPromptOpen = ref(false)
 const selectedRating = ref<Rating | null>(null)
 const ratings = ref<Rating[]>([])
 
@@ -105,6 +116,16 @@ const onCardClick = (rating: Rating) => {
 // ─── Lifecycle ─────────────────────────────────────────────────────
 onMounted(() => {
   fetchRatings()
+
+  if (route.query.action === 'ulasan') {
+    if (authStore.isAuthenticated) {
+      openAddModal()
+    }
+    // Remove the query param from URL so it doesn't trigger on refresh
+    const newQuery = { ...route.query }
+    delete newQuery.action
+    router.replace({ query: newQuery })
+  }
 })
 
 onUnmounted(() => {
@@ -127,6 +148,10 @@ const fetchRatings = async () => {
 }
 
 const openAddModal = () => {
+  if (!authStore.isAuthenticated) {
+    isAuthPromptOpen.value = true
+    return
+  }
   selectedRating.value = null
   isRatingModalOpen.value = true
 }
