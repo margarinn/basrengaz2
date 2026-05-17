@@ -23,6 +23,10 @@
         <div v-if="successMessage" class="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg text-sm text-green-700">
           {{ successMessage }}
         </div>
+        
+        <div v-if="authStore.error" class="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700">
+          {{ authStore.error }}
+        </div>
 
         <form @submit.prevent="handleSubmit" class="space-y-5 w-full">
           <div>
@@ -60,7 +64,7 @@
 
           <BaseButton
             type="submit"
-            :loading="isSubmitting"
+            :loading="authStore.loading"
             full-width
             class="!bg-[#DC2626] hover:!bg-red-600 text-white font-semibold py-3 rounded-xl w-full mt-2"
           >
@@ -96,11 +100,12 @@ import { useRouter } from 'vue-router'
 import { Mail, Lock, Phone } from 'lucide-vue-next'
 import BaseInput from '@/components/common/BaseInput.vue'
 import BaseButton from '@/components/common/BaseButton.vue'
+import { useAuthStore } from '@/stores/auth'
 import heroImg from '@/assets/images/gambar2.jpg'
 
 const router = useRouter()
+const authStore = useAuthStore()
 const showPassword = ref(false)
-const isSubmitting = ref(false)
 const successMessage = ref('')
 
 const form = ref({
@@ -110,12 +115,19 @@ const form = ref({
 })
 
 const handleSubmit = async () => {
-  isSubmitting.value = true
   successMessage.value = ''
 
-  await new Promise(resolve => setTimeout(resolve, 700))
+  const success = await authStore.forgotPassword({
+    email: form.value.email,
+    phone: form.value.phone,
+    password: form.value.password
+  })
 
-  successMessage.value = 'Permintaan reset password berhasil dikirim. Silakan cek email Anda untuk instruksi selanjutnya.'
-  isSubmitting.value = false
+  if (success) {
+    successMessage.value = 'Password berhasil direset. Mengalihkan ke halaman login...'
+    setTimeout(() => {
+      router.push('/login')
+    }, 2000)
+  }
 }
 </script>

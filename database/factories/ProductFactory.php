@@ -53,10 +53,7 @@ class ProductFactory extends Factory
         ];
 
         return [
-            'name' => $type === 'income' 
-                ? fake()->unique()->randomElement($incomeProducts) 
-                : fake()->unique()->randomElement($expenseProducts),
-            'type' => $type,
+            'name' => fake()->unique()->randomElement($incomeProducts),
             'description' => fake()->paragraph(3),
             'price' => fake()->randomElement([5000, 8000, 10000, 12000, 15000, 20000, 25000, 50000, 100000]),
             'image' => null, // No default image in factory

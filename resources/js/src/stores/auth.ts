@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { authService } from '@/services/auth.service'
-import type { User, LoginCredentials, RegisterPayload } from '@/types'
+import type { User, LoginCredentials, RegisterPayload, ForgotPasswordPayload } from '@/types'
 
 export const useAuthStore = defineStore('auth', () => {
   // State
@@ -73,7 +73,36 @@ export const useAuthStore = defineStore('auth', () => {
 
   function initializeAuth() {
     if (!initialized.value) {
-      fetchProfile()
+      return fetchProfile()
+    }
+    return Promise.resolve()
+  }
+
+  async function updateProfile(data: Partial<User>) {
+    loading.value = true
+    try {
+      const updatedUser = await authService.updateProfile(data)
+      user.value = updatedUser
+      return true
+    } catch (err) {
+      console.error('Update profile error:', err)
+      return false
+    } finally {
+      loading.value = false
+    }
+  }
+
+  async function forgotPassword(payload: ForgotPasswordPayload) {
+    loading.value = true
+    error.value = null
+    try {
+      await authService.forgotPassword(payload)
+      return true
+    } catch (err: any) {
+      error.value = err.response?.data?.message || 'Gagal mereset password.'
+      return false
+    } finally {
+      loading.value = false
     }
   }
 
@@ -90,6 +119,8 @@ export const useAuthStore = defineStore('auth', () => {
     login,
     logout,
     fetchProfile,
-    initializeAuth
+    initializeAuth,
+    updateProfile,
+    forgotPassword
   }
 })

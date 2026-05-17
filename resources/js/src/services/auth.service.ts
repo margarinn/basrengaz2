@@ -1,6 +1,6 @@
 import api from './api'
 import axios from 'axios'
-import type { RegisterPayload, LoginCredentials, User } from '@/types'
+import type { RegisterPayload, LoginCredentials, User, ForgotPasswordPayload } from '@/types'
 
 export const authService = {
   async register(payload: RegisterPayload) {
@@ -17,6 +17,10 @@ export const authService = {
 
   async logout(): Promise<void> {
     await api.post('/logout')
+  },
+
+  async forgotPassword(payload: ForgotPasswordPayload): Promise<void> {
+    await api.post('/forgot-password', payload)
   },
 
   async getProfile(): Promise<User> {

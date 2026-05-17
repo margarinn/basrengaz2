@@ -6,9 +6,14 @@
           <h1 class="text-3xl font-bold text-gray-900">Profil Saya</h1>
           <p class="text-sm text-gray-500">Kelola informasi akun Anda di sini.</p>
         </div>
-        <BaseButton variant="danger" size="sm" @click="goBack">
-          Kembali
-        </BaseButton>
+        <div class="flex items-center gap-3">
+          <BaseButton variant="danger" size="sm" @click="goBack">
+            Kembali
+          </BaseButton>
+          <BaseButton variant="outline" size="sm" @click="handleLogout">
+            Keluar
+          </BaseButton>
+        </div>
       </div>
 
       <BaseCard padding="lg">
@@ -127,11 +132,12 @@ const syncProfile = () => {
   if (user) {
     profile.name = user.name
     profile.email = user.email
+    profile.phone = user.phone || ''
     profile.role = user.role === 'admin' ? 'Admin' : 'Pengguna'
     form.name = user.name
     form.email = user.email
+    form.phone = user.phone || ''
     form.role = profile.role
-    form.phone = ''
     form.address = ''
     form.gender = ''
   }
@@ -144,16 +150,20 @@ const startEdit = () => {
 
 const saveEdit = async () => {
   isSaving.value = true
-  await new Promise(resolve => setTimeout(resolve, 500))
-  Object.assign(profile, form)
-  if (authStore.user) {
-    authStore.user = {
-      ...authStore.user,
-      name: form.name,
-      email: form.email
-    }
+  
+  const success = await authStore.updateProfile({
+    name: form.name,
+    email: form.email,
+    phone: form.phone
+  })
+
+  if (success) {
+    Object.assign(profile, form)
+    isEditing.value = false
+  } else {
+    alert('Gagal menyimpan profil. ' + (authStore.error || ''))
   }
-  isEditing.value = false
+  
   isSaving.value = false
 }
 
@@ -163,6 +173,11 @@ const cancelEdit = () => {
 }
 
 const goBack = () => {
+  router.push('/')
+}
+
+const handleLogout = async () => {
+  await authStore.logout()
   router.push('/')
 }
 

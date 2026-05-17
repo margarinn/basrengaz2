@@ -60,11 +60,11 @@ const handleClose = () => {
 
 const handleLogin = () => {
   isOpen.value = false
-  router.push('/login?redirect=/?action=ulasan')
+  router.push('/login?redirect=/?action=ulasan%23ulasan')
 }
 
 const handleRegister = () => {
   isOpen.value = false
-  router.push('/register?redirect=/?action=ulasan')
+  router.push('/register?redirect=/?action=ulasan%23ulasan')
 }
 </script>

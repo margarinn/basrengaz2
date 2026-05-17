@@ -3,6 +3,7 @@ export interface User {
   id: number
   name: string
   email: string
+  phone?: string
   avatar?: string
   role: 'admin' | 'user'
 }
@@ -118,12 +119,20 @@ export interface ApiResponse<T> {
 export interface RegisterPayload {
   username: string
   email: string
+  phone: string
+  password: string
+}
+
+export interface ForgotPasswordPayload {
+  email: string
+  phone: string
   password: string
 }
 
 export interface LoginCredentials {
   email: string
   password: string
+  remember?: boolean
 }
 
 export interface AuthResponse {

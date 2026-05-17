@@ -55,6 +55,18 @@
             />
           </div>
 
+          <!-- Nomor Telepon -->
+          <div>
+            <label class="block text-sm font-semibold text-gray-800 mb-1">Nomor Telepon</label>
+            <BaseInput
+              v-model="form.phone"
+              type="tel"
+              placeholder="Masukkan nomor telepon"
+              :icon="Phone"
+              required
+            />
+          </div>
+
           <!-- Password -->
           <div>
             <label class="block text-sm font-semibold text-gray-800 mb-1">Password</label>
@@ -115,7 +127,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
-import { Mail, Lock, AlertCircle, User } from 'lucide-vue-next'
+import { Mail, Lock, AlertCircle, User, Phone } from 'lucide-vue-next'
 import BaseInput from '@/components/common/BaseInput.vue'
 import BaseButton from '@/components/common/BaseButton.vue'
 import { useAuthStore } from '@/stores/auth'
@@ -131,6 +143,7 @@ const rememberMe = ref(false)
 const form = ref({
     username: '',
     email: '',
+    phone: '',
     password: ''
 })
 
@@ -138,15 +151,16 @@ const handleSubmit = async () => {
   const success = await authStore.register({
     username: form.value.username,
     email: form.value.email,
+    phone: form.value.phone,
     password: form.value.password
   })
 
   if (success) {
     const redirect = route.query.redirect as string
     if (redirect) {
-      router.push({ path: '/login', query: { redirect } })
+      router.push(redirect)
     } else {
-      router.push('/login')
+      router.push('/')
     }
   }
 }

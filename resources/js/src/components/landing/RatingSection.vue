@@ -1,5 +1,5 @@
 <template>
-  <section class="py-12 bg-[#F5F5F5]">
+  <section id="ulasan" class="py-12 bg-[#F5F5F5]">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <!-- Header -->
       <div class="text-center mb-16">
@@ -27,10 +27,7 @@
           :gap="24"
         >
           <template #default="{ item: rating }">
-            <div
-              class="flex-shrink-0 card p-6 relative pt-12 cursor-pointer hover:shadow-lg transition-shadow"
-              @click="onCardClick(rating)"
-            >
+            <div class="flex-shrink-0 card p-6 relative pt-12">
               <!-- Quote Icon -->
               <div class="absolute -top-5 left-4 w-12 h-12 bg-primary rounded-full flex items-center justify-center z-10 shadow-lg">
                 <Quote class="w-5 h-5 text-white" />
@@ -109,15 +106,14 @@ const ratings = ref<Rating[]>([])
 // ─── Carousel ──────────────────────────────────────────────────────
 const carouselRef = ref<any>(null)
 
-const onCardClick = (rating: Rating) => {
-  if (!carouselRef.value?.isDragging) openEditModal(rating)
-}
-
 // ─── Lifecycle ─────────────────────────────────────────────────────
 onMounted(() => {
   fetchRatings()
 
   if (route.query.action === 'ulasan') {
+    // Scroll automatically to the ulasan section
+    document.getElementById('ulasan')?.scrollIntoView({ behavior: 'smooth' })
+    
     if (authStore.isAuthenticated) {
       openAddModal()
     }
@@ -156,19 +152,9 @@ const openAddModal = () => {
   isRatingModalOpen.value = true
 }
 
-const openEditModal = (rating: Rating) => {
-  selectedRating.value = rating
-  isRatingModalOpen.value = true
-}
-
 const handleRatingSubmit = async (data: RatingFormData) => {
   try {
-    if (selectedRating.value) {
-      await ratingService.update(selectedRating.value.id, data)
-    } else {
-      await ratingService.create(data)
-    }
-    selectedRating.value = null
+    await ratingService.create(data)
     isRatingModalOpen.value = false
     await fetchRatings()
   } catch (err: any) {
@@ -176,15 +162,8 @@ const handleRatingSubmit = async (data: RatingFormData) => {
   }
 }
 
-const handleDeleteRating = async () => {
-  if (!selectedRating.value) return
-  try {
-    await ratingService.delete(selectedRating.value.id)
-    selectedRating.value = null
-    isRatingModalOpen.value = false
-    await fetchRatings()
-  } catch (err: any) {
-    alert(err.response?.data?.message || 'Gagal menghapus ulasan.')
-  }
+// ─── No Delete Allowed on Landing Page ────────────────────────────────
+const handleDeleteRating = () => {
+  isRatingModalOpen.value = false
 }
 </script>

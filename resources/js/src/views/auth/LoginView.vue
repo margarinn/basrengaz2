@@ -122,7 +122,8 @@ const form = ref({
 const handleSubmit = async () => {
   const success = await authStore.login({
     email: form.value.email,
-    password: form.value.password
+    password: form.value.password,
+    remember: rememberMe.value
   })
 
   if (success) {
