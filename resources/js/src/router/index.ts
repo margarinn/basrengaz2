@@ -48,25 +48,25 @@ const dashboardRoutes = [
     meta: { layout: 'dashboard' }
   },
   {
-    path: '/dashboard/products',
+    path: '/dashboard/produk',
     name: 'DashboardProducts',
     component: () => import('@/views/dashboard/ProductsView.vue'),
     meta: { layout: 'dashboard' }
   },
   {
-    path: '/dashboard/news',
+    path: '/dashboard/berita',
     name: 'DashboardNews',
     component: () => import('@/views/dashboard/NewsView.vue'),
     meta: { layout: 'dashboard' }
   },
   {
-    path: '/dashboard/ratings',
+    path: '/dashboard/rating',
     name: 'DashboardRatings',
     component: () => import('@/views/dashboard/RatingsView.vue'),
     meta: { layout: 'dashboard' }
   },
   {
-    path: '/dashboard/finance',
+    path: '/dashboard/keuangan',
     name: 'DashboardFinance',
     component: () => import('@/views/dashboard/FinanceView.vue'),
     meta: { layout: 'dashboard' }

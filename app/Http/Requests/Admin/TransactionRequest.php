@@ -23,10 +23,22 @@ class TransactionRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'type' => ['required', Rule::in(['income', 'expense'])],
-            'amount' => ['required', 'integer', 'min:1'],
+            'revenue' => ['required', 'numeric', 'min:0'],
+            'expenses' => [
+                'required',
+                'numeric',
+                'min:0',
+                function ($attribute, $value, $fail) {
+                    $revenue = request()->input('revenue');
+                    if ($revenue > 0 && $value > 0) {
+                        $fail('Tidak bisa mengisi pemasukan dan pengeluaran sekaligus.');
+                    }
+                    if ($revenue == 0 && $value == 0) {
+                        $fail('Nominal tidak boleh 0 keduanya.');
+                    }
+                }
+            ],
             'description' => ['required', 'string', 'max:255'],
-            'transaction_date' => ['required', 'date'],
         ];
     }
 
@@ -36,15 +48,14 @@ class TransactionRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'type.required' => 'Jenis transaksi wajib dipilih.',
-            'type.in' => 'Jenis transaksi harus pemasukan atau pengeluaran.',
-            'amount.required' => 'Nominal transaksi wajib diisi.',
-            'amount.integer' => 'Nominal transaksi harus berupa angka.',
-            'amount.min' => 'Nominal transaksi minimal Rp 1.',
+            'revenue.required' => 'Pemasukan wajib diisi.',
+            'revenue.numeric' => 'Pemasukan harus berupa angka.',
+            'revenue.min' => 'Pemasukan tidak boleh negatif.',
+            'expenses.required' => 'Pengeluaran wajib diisi.',
+            'expenses.numeric' => 'Pengeluaran harus berupa angka.',
+            'expenses.min' => 'Pengeluaran tidak boleh negatif.',
             'description.required' => 'Keterangan transaksi wajib diisi.',
             'description.max' => 'Keterangan transaksi maksimal 255 karakter.',
-            'transaction_date.required' => 'Tanggal transaksi wajib diisi.',
-            'transaction_date.date' => 'Tanggal transaksi tidak valid.',
         ];
     }
 }

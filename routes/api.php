@@ -55,6 +55,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/dashboard/stats', [DashboardController::class, 'stats']);
         Route::get('/dashboard/order-stats', [DashboardController::class, 'orderStats']);
         Route::get('/dashboard/top-products', [DashboardController::class, 'topProducts']);
+        Route::get('/dashboard/finance-overview', [DashboardController::class, 'financeOverview']);
 
         // Products CRUD
         Route::post('/products', [ProductController::class, 'store']);

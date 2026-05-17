@@ -11,9 +11,13 @@ export interface User {
 export interface Product {
   id: number
   name: string
-  price: number
   description: string
+  price: number
+  formatted_price: string
   image: string
+  average_rating: number
+  rating_count: number
+  is_active: boolean
   created_at?: string
   updated_at?: string
 }
@@ -22,7 +26,7 @@ export interface ProductFormData {
   name: string
   price: number
   description: string
-  image: string
+  image: string | File
 }
 
 // News/Berita Types
@@ -69,19 +73,17 @@ export interface Finance {
 }
 
 export interface FinanceFormData {
-  week: string,
-  revenue: number,
-  expenses: number,
+  revenue: number | string
+  expenses: number | string
   description: string
 }
 
 // Dashboard Stats Types
 export interface DashboardStats {
-  totalSales: number
-  salesGrowth: number
-  revenue: number
-  newReviews: number
-  totalCustomers: number
+  grossRevenue: number
+  netRevenue: number
+  reviewCount: number
+  userCount: number
 }
 
 export interface OrderStat {
@@ -92,6 +94,12 @@ export interface OrderStat {
 export interface TopProduct {
   name: string
   orders: number
+}
+
+export interface FinanceOverviewStat {
+  income: number
+  expense: number
+  period: string
 }
 
 // API Response Types

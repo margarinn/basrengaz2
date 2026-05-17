@@ -55,10 +55,30 @@ class DatabaseSeeder extends Seeder
         }
 
         // Create sample transactions
-        Transaction::factory(20)->create([
+        // 1. Transactions for the last 6 months (Historical)
+        Transaction::factory(100)->create([
             'user_id' => $admin->id,
+            'transaction_date' => fn() => fake()->dateTimeBetween('-6 months', '-1 month'),
         ]);
 
-        $this->command->info('Database seeded with sample data!');
+        // 2. Transactions for this month
+        Transaction::factory(50)->create([
+            'user_id' => $admin->id,
+            'transaction_date' => fn() => fake()->dateTimeBetween('-1 month', '-1 week'),
+        ]);
+
+        // 3. Transactions for this week
+        Transaction::factory(30)->create([
+            'user_id' => $admin->id,
+            'transaction_date' => fn() => fake()->dateTimeBetween('-1 week', '-1 day'),
+        ]);
+
+        // 4. Transactions for today (Very recent)
+        Transaction::factory(10)->create([
+            'user_id' => $admin->id,
+            'transaction_date' => fn() => fake()->dateTimeBetween('today', 'now'),
+        ]);
+
+        $this->command->info('Database seeded with sample data and realistic transactions!');
     }
 }

@@ -41,10 +41,17 @@
       >
         <template #cell-image="{ row }">
           <img
+            v-if="row.image"
             :src="row.image"
             :alt="row.name"
             class="w-20 h-14 object-cover rounded-lg"
           />
+          <div
+            v-else
+            class="w-20 h-14 bg-gray-100 rounded-lg flex items-center justify-center text-xs text-gray-400"
+          >
+            No Image
+          </div>
         </template>
         <template #cell-price="{ row }">
           Rp {{ formatPrice(row.price) }}

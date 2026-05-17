@@ -16,14 +16,30 @@
       />
 
       <!-- Rating -->
-      <BaseInput
-        v-model.number="form.rating"
-        label="Rating"
-        type="number"
-        placeholder="Masukkan rating (1-5)"
-        required
-        :error="errors.rating"
-      />
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Rating</label>
+        <div class="flex items-center gap-1" @mouseleave="hoverRating = 0">
+          <div 
+            v-for="i in 5" 
+            :key="i"
+            class="relative cursor-pointer w-8 h-8"
+            @mousemove="handleStarMove($event, i)"
+            @click="handleStarClick($event, i)"
+          >
+            <!-- Background star (gray) -->
+            <Star class="absolute inset-0 w-8 h-8 text-gray-300" />
+            <!-- Foreground star (filled, yellow) -->
+            <div 
+              class="absolute inset-0 overflow-hidden"
+              :style="{ width: getStarFillWidth(i) }"
+            >
+              <Star class="w-8 h-8 text-yellow-400 fill-current" />
+            </div>
+          </div>
+          <span class="ml-2 text-sm font-medium text-gray-600">{{ hoverRating || form.rating }} / 5</span>
+        </div>
+        <p v-if="errors.rating" class="mt-1 text-sm text-red-600">{{ errors.rating }}</p>
+      </div>
 
       <!-- Ulasan -->
       <BaseTextarea
@@ -62,6 +78,7 @@ import { ref, computed, watch } from 'vue'
 import BaseModal from '@/components/common/BaseModal.vue'
 import BaseInput from '@/components/common/BaseInput.vue'
 import BaseTextarea from '@/components/common/BaseTextarea.vue'
+import { Star } from 'lucide-vue-next'
 import type { Rating, RatingFormData } from '@/types'
 
 interface Props {
@@ -94,6 +111,27 @@ const form = ref<RatingFormData>({
   rating: 0,
   review: '',
 })
+
+const hoverRating = ref(0)
+
+const getStarFillWidth = (starIndex: number) => {
+  const currentVal = hoverRating.value || form.value.rating
+  if (currentVal >= starIndex) return '100%'
+  if (currentVal >= starIndex - 0.5) return '50%'
+  return '0%'
+}
+
+const handleStarMove = (e: MouseEvent, starIndex: number) => {
+  const rect = (e.currentTarget as HTMLElement).getBoundingClientRect()
+  const isLeftHalf = (e.clientX - rect.left) < (rect.width / 2)
+  hoverRating.value = isLeftHalf ? starIndex - 0.5 : starIndex
+}
+
+const handleStarClick = (e: MouseEvent, starIndex: number) => {
+  const rect = (e.currentTarget as HTMLElement).getBoundingClientRect()
+  const isLeftHalf = (e.clientX - rect.left) < (rect.width / 2)
+  form.value.rating = isLeftHalf ? starIndex - 0.5 : starIndex
+}
 
 // ─── Reset sebelum watch ───────────────────────────────────────────
 const resetForm = () => {

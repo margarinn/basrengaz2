@@ -1,6 +1,6 @@
 <template>
   <div class="h-80">
-    <Bar
+    <LineChart
       v-if="chartData.labels.length > 0"
       :data="chartData"
       :options="chartOptions"
@@ -17,15 +17,17 @@ import {
   Chart as ChartJS,
   CategoryScale,
   LinearScale,
-  BarElement,
+  PointElement,
+  LineElement,
   Title,
   Tooltip,
-  Legend
+  Legend,
+  Filler
 } from 'chart.js'
-import { Bar } from 'vue-chartjs'
+import { Line as LineChart } from 'vue-chartjs'
 import type { OrderStat } from '@/types'
 
-ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend)
+ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, Filler)
 
 interface Props {
   data: OrderStat[]
@@ -42,9 +44,15 @@ const chartData = computed(() => ({
     {
       label: 'Pesanan',
       data: props.data.map(item => item.orders),
-      backgroundColor: '#E53935',
-      borderRadius: 4,
-      barThickness: 24
+      borderColor: '#E53935',
+      backgroundColor: 'rgba(229, 57, 53, 0.1)',
+      borderWidth: 2,
+      pointBackgroundColor: '#E53935',
+      pointBorderColor: '#fff',
+      pointHoverBackgroundColor: '#fff',
+      pointHoverBorderColor: '#E53935',
+      fill: true,
+      tension: 0.4
     }
   ]
 }))

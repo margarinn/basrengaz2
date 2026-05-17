@@ -9,9 +9,9 @@
       >
         <component :is="icon" class="w-8 h-8" :class="iconColorClass" />
       </div>
-      <div>
-        <div class="flex items-baseline items-center gap-1">
-          <h3 class="text-2xl font-bold text-gray-900">{{ value }}</h3>
+      <div class="flex-1 min-w-0">
+        <div class="flex items-center gap-1">
+          <h3 class="text-2xl font-bold text-gray-900 truncate" :title="value">{{ value }}</h3>
           <span
             v-if="change !== undefined"
             :class="[

@@ -72,10 +72,10 @@ const authStore = useAuthStore()
 
 const menuItems = [
   { name: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
-  { name: 'Produk', path: '/dashboard/products', icon: Package },
-  { name: 'Berita', path: '/dashboard/news', icon: Newspaper },
-  { name: 'Rating', path: '/dashboard/ratings', icon: Star },
-  { name: 'Keuangan', path: '/dashboard/finance', icon: TrendingUp }
+  { name: 'Produk', path: '/dashboard/produk', icon: Package },
+  { name: 'Berita', path: '/dashboard/berita', icon: Newspaper },
+  { name: 'Rating', path: '/dashboard/rating', icon: Star },
+  { name: 'Keuangan', path: '/dashboard/keuangan', icon: TrendingUp }
 ]
 
 const sidebarClasses = computed(() => {

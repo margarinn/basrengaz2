@@ -7,9 +7,19 @@ use App\Http\Requests\Admin\TransactionRequest;
 use App\Models\Transaction;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Carbon\Carbon;
 
 class TransactionController extends Controller
 {
+    private function getIndonesianMonth(Carbon $date): string
+    {
+        $months = [
+            1 => 'Januari', 2 => 'Februari', 3 => 'Maret', 4 => 'April',
+            5 => 'Mei', 6 => 'Juni', 7 => 'Juli', 8 => 'Agustus',
+            9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'Desember'
+        ];
+        return $months[$date->month] . ' ' . $date->year;
+    }
     /**
      * List transactions with filtering (admin).
      */
@@ -43,9 +53,13 @@ class TransactionController extends Controller
 
         return response()->json([
             'success' => true,
-            'data' => $transactions->through(fn ($t) => [
+            'data' => $transactions->through(function ($t) {
+                // Determine week number of the month
+                $weekNumber = ceil($t->transaction_date->format('d') / 7);
+                $monthYear = $this->getIndonesianMonth($t->transaction_date);
+                return [
                 'id' => $t->id,
-                'week' => $t->transaction_date->format('d M Y'),
+                'week' => "Minggu ke-{$weekNumber} {$monthYear}",
                 'revenue' => $t->type === 'income' ? $t->amount : 0,
                 'expenses' => $t->type === 'expense' ? $t->amount : 0,
                 'description' => $t->description,
@@ -55,9 +69,9 @@ class TransactionController extends Controller
                 'formatted_amount' => $t->formatted_amount,
                 'transaction_date' => $t->transaction_date->format('d M Y'),
                 'recorded_by' => $t->user?->name,
-                'created_at' => $t->created_at?->toISOString(),
                 'updated_at' => $t->updated_at?->toISOString(),
-            ])->items(),
+                ];
+            })->items(),
             'meta' => [
                 'current_page' => $transactions->currentPage(),
                 'last_page' => $transactions->lastPage(),
@@ -81,15 +95,27 @@ class TransactionController extends Controller
     public function store(TransactionRequest $request): JsonResponse
     {
         $validated = $request->validated();
-        $validated['user_id'] = $request->user()->id;
+        $revenue = $validated['revenue'];
+        $expenses = $validated['expenses'];
+        $type = $revenue > 0 ? 'income' : 'expense';
+        $amount = $revenue > 0 ? $revenue : $expenses;
 
-        $transaction = Transaction::create($validated);
+        $transaction = Transaction::create([
+            'user_id' => $request->user()->id,
+            'type' => $type,
+            'amount' => $amount,
+            'description' => $validated['description'],
+            'transaction_date' => now(),
+        ]);
+
+        $weekNumber = ceil($transaction->transaction_date->format('d') / 7);
+        $monthYear = $this->getIndonesianMonth($transaction->transaction_date);
 
         return response()->json([
             'success' => true,
             'data' => [
                 'id' => $transaction->id,
-                'week' => $transaction->transaction_date->format('d M Y'),
+                'week' => "Minggu ke-{$weekNumber} {$monthYear}",
                 'revenue' => $transaction->type === 'income' ? $transaction->amount : 0,
                 'expenses' => $transaction->type === 'expense' ? $transaction->amount : 0,
                 'description' => $transaction->description,
@@ -103,13 +129,26 @@ class TransactionController extends Controller
      */
     public function update(TransactionRequest $request, Transaction $transaction): JsonResponse
     {
-        $transaction->update($request->validated());
+        $validated = $request->validated();
+        $revenue = $validated['revenue'];
+        $expenses = $validated['expenses'];
+        $type = $revenue > 0 ? 'income' : 'expense';
+        $amount = $revenue > 0 ? $revenue : $expenses;
+
+        $transaction->update([
+            'type' => $type,
+            'amount' => $amount,
+            'description' => $validated['description'],
+        ]);
+
+        $weekNumber = ceil($transaction->transaction_date->format('d') / 7);
+        $monthYear = $this->getIndonesianMonth($transaction->transaction_date);
 
         return response()->json([
             'success' => true,
             'data' => [
                 'id' => $transaction->id,
-                'week' => $transaction->transaction_date->format('d M Y'),
+                'week' => "Minggu ke-{$weekNumber} {$monthYear}",
                 'revenue' => $transaction->type === 'income' ? $transaction->amount : 0,
                 'expenses' => $transaction->type === 'expense' ? $transaction->amount : 0,
                 'description' => $transaction->description,

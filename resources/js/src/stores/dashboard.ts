@@ -1,41 +1,48 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { dashboardService } from '@/services/dashboard.service'
-import type { DashboardStats, OrderStat, TopProduct } from '@/types'
+import type { DashboardStats, OrderStat, TopProduct, FinanceOverviewStat } from '@/types'
 
 export const useDashboardStore = defineStore('dashboard', () => {
   // State
   const stats = ref<DashboardStats>({
-    totalSales: 0,
-    salesGrowth: 0,
-    revenue: 0,
-    newReviews: 0,
-    totalCustomers: 0
+    grossRevenue: 0,
+    netRevenue: 0,
+    reviewCount: 0,
+    userCount: 0
   })
   const orderStats = ref<OrderStat[]>([])
   const topProducts = ref<TopProduct[]>([])
+  const financeOverview = ref<FinanceOverviewStat>({
+    income: 0,
+    expense: 0,
+    period: 'month'
+  })
   const loading = ref(false)
   const error = ref<string | null>(null)
 
   // Getters
-  const formattedRevenue = computed(() => {
+  const formattedGrossRevenue = computed(() => {
     return new Intl.NumberFormat('id-ID', {
       style: 'currency',
       currency: 'IDR',
       minimumFractionDigits: 0,
       maximumFractionDigits: 0
-    }).format(stats.value.revenue)
+    }).format(stats.value.grossRevenue)
   })
 
-  const formattedTotalSales = computed(() => {
-    return new Intl.NumberFormat('id-ID').format(stats.value.totalSales)
+  const formattedNetRevenue = computed(() => {
+    return new Intl.NumberFormat('id-ID', {
+      style: 'currency',
+      currency: 'IDR',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0
+    }).format(stats.value.netRevenue)
   })
 
-  const formattedTotalCustomers = computed(() => {
-    return new Intl.NumberFormat('id-ID').format(stats.value.totalCustomers)
+  const formattedUserCount = computed(() => {
+    return new Intl.NumberFormat('id-ID').format(stats.value.userCount)
   })
-
-  const salesGrowthPositive = computed(() => stats.value.salesGrowth >= 0)
 
   // Actions
   async function fetchStats() {
@@ -80,11 +87,26 @@ export const useDashboardStore = defineStore('dashboard', () => {
     }
   }
 
+  async function fetchFinanceOverview(period: 'day' | 'week' | 'month' | 'year' = 'month') {
+    loading.value = true
+    error.value = null
+    
+    try {
+      const response = await dashboardService.getFinanceOverview(period)
+      financeOverview.value = response
+    } catch (err: any) {
+      error.value = err.response?.data?.message || 'Gagal memuat ringkasan keuangan'
+    } finally {
+      loading.value = false
+    }
+  }
+
   async function fetchAllDashboardData() {
     await Promise.all([
       fetchStats(),
       fetchOrderStats(),
-      fetchTopProducts()
+      fetchTopProducts(),
+      fetchFinanceOverview()
     ])
   }
 
@@ -96,15 +118,16 @@ export const useDashboardStore = defineStore('dashboard', () => {
     stats,
     orderStats,
     topProducts,
+    financeOverview,
     loading,
     error,
-    formattedRevenue,
-    formattedTotalSales,
-    formattedTotalCustomers,
-    salesGrowthPositive,
+    formattedGrossRevenue,
+    formattedNetRevenue,
+    formattedUserCount,
     fetchStats,
     fetchOrderStats,
     fetchTopProducts,
+    fetchFinanceOverview,
     fetchAllDashboardData,
     clearError
   }

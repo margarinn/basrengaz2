@@ -15,27 +15,26 @@
       <!-- Stats Cards -->
       <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard
-          title="Total Penjualan"
-          :value="dashboardStore.formattedTotalSales"
-          :change="dashboardStore.stats.salesGrowth"
+          title="Pendapatan Kotor"
+          :value="dashboardStore.formattedGrossRevenue"
           :icon="ShoppingBag"
           icon-color="primary"
         />
         <StatCard
           title="Pendapatan"
-          :value="dashboardStore.formattedRevenue"
+          :value="dashboardStore.formattedNetRevenue"
           :icon="DollarSign"
           icon-color="secondary"
         />
         <StatCard
-          title="Ulasan Baru"
-          :value="String(dashboardStore.stats.newReviews)"
+          title="Ulasan"
+          :value="String(dashboardStore.stats.reviewCount)"
           :icon="MessageSquare"
           icon-color="warning"
         />
         <StatCard
-          title="Total Pembeli"
-          :value="dashboardStore.formattedTotalCustomers"
+          title="Total Pengguna"
+          :value="dashboardStore.formattedUserCount"
           :icon="Users"
           icon-color="success"
         />
@@ -43,24 +42,10 @@
 
       <!-- Charts & Lists -->
       <div class="grid lg:grid-cols-3 gap-6">
-        <!-- Order Chart -->
-        <div class="lg:col-span-2 card">
-          <div class="p-6 border-b border-gray-100 flex items-center justify-between">
-            <h2 class="text-lg font-semibold text-gray-900">Statistik Pemesanan</h2>
-            <div class="flex items-center gap-2 text-sm text-gray-500">
-              <Calendar class="w-4 h-4" />
-              {{ currentDate }}
-            </div>
-          </div>
-          <div class="p-6">
-            <OrderChart :data="dashboardStore.orderStats" />
-          </div>
-        </div>
-
         <!-- Top Products -->
-        <div class="card">
+        <div class="lg:col-span-3 card">
           <div class="p-6 border-b border-gray-100">
-            <h2 class="text-lg font-semibold text-gray-900">Pesanan Terlaris</h2>
+            <h2 class="text-lg font-semibold text-gray-900">Produk</h2>
           </div>
           <div class="p-6">
             <div v-if="dashboardStore.topProducts.length === 0" class="text-center py-8">
@@ -83,16 +68,48 @@
                   </span>
                   <span class="text-gray-700">{{ product.name }}</span>
                 </div>
-                <span class="font-semibold text-gray-900">{{ product.orders }}</span>
+                <span class="font-semibold text-gray-900">Rp {{ new Intl.NumberFormat('id-ID').format(product.orders) }}</span>
               </div>
             </div>
             <router-link
-              to="/dashboard/products"
+              to="/dashboard/produk"
               class="block w-full mt-6 py-3 text-center border border-primary text-primary rounded-lg hover:bg-primary hover:text-white transition-colors"
             >
-              Lihat Laporan Lengkap
+              Lihat Produk Lengkap
             </router-link>
           </div>
+        </div>
+      </div>
+
+      <!-- Finance Overview -->
+      <div class="card mt-6">
+        <div class="p-6 border-b border-gray-100 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <h2 class="text-lg font-semibold text-gray-900">Ringkasan Keuangan</h2>
+          <div class="flex flex-wrap gap-2">
+            <button
+              v-for="period in periods"
+              :key="period.value"
+              @click="setFinancePeriod(period.value)"
+              :class="[
+                'px-4 py-2 text-sm font-medium rounded-lg transition-colors',
+                currentFinancePeriod === period.value
+                  ? 'bg-primary text-white shadow-sm'
+                  : 'bg-gray-50 text-gray-600 hover:bg-gray-100'
+              ]"
+            >
+              {{ period.label }}
+            </button>
+          </div>
+        </div>
+        <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+          <FinancePieChart
+            :income="dashboardStore.financeOverview.income"
+            :expense="dashboardStore.financeOverview.expense"
+          />
+          <FinanceBarChart
+            :income="dashboardStore.financeOverview.income"
+            :expense="dashboardStore.financeOverview.expense"
+          />
         </div>
       </div>
     </template>
@@ -100,7 +117,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import {
   ShoppingBag,
   DollarSign,
@@ -110,7 +127,8 @@ import {
 } from 'lucide-vue-next'
 import { useDashboardStore, useAuthStore } from '@/stores'
 import StatCard from '@/components/dashboard/StatCard.vue'
-import OrderChart from '@/components/dashboard/OrderChart.vue'
+import FinancePieChart from '@/components/dashboard/FinancePieChart.vue'
+import FinanceBarChart from '@/components/dashboard/FinanceBarChart.vue'
 import LoadingSpinner from '@/components/common/LoadingSpinner.vue'
 
 const dashboardStore = useDashboardStore()
@@ -125,6 +143,20 @@ const currentDate = computed(() => {
     year: 'numeric'
   })
 })
+
+const periods = [
+  { label: 'Minggu Ini', value: 'week' },
+  { label: 'Bulan Ini', value: 'month' },
+  { label: 'Tahun Ini', value: 'year' }
+] as const
+
+type Period = typeof periods[number]['value']
+const currentFinancePeriod = ref<Period>('month')
+
+const setFinancePeriod = async (period: Period) => {
+  currentFinancePeriod.value = period
+  await dashboardStore.fetchFinanceOverview(period)
+}
 
 onMounted(() => {
   dashboardStore.fetchAllDashboardData()

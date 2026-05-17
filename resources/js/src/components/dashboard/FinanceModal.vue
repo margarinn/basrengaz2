@@ -6,15 +6,6 @@
     @close="handleClose"
   >
     <form @submit.prevent="handleSubmit" class="space-y-4">
-      <!-- Minggu -->
-      <BaseInput
-        v-model="form.week"
-        label="Minggu"
-        placeholder="Masukkan minggu berapa"
-        required
-        :error="errors.week"
-      />
-
       <!-- Pemasukan -->
       <BaseInput
         v-model.number="form.revenue"
@@ -102,14 +93,13 @@ const isOpen = computed({
 const isEdit = computed(() => !!props.finance)
 
 const form = ref<FinanceFormData>({
-  week: '',
   revenue: 0,
   expenses: 0,
   description: ''
 })
 
 const resetForm = () => {
-  form.value = { week: '', revenue: 0, expenses: 0, description: '' }
+  form.value = { revenue: 0, expenses: 0, description: '' }
   errors.value = {}
 }
 
@@ -117,7 +107,6 @@ const resetForm = () => {
 watch(() => props.finance, (newFinance) => {
   if (newFinance) {
     form.value = {
-      week: newFinance.week,
       revenue: newFinance.revenue,
       expenses: newFinance.expenses,
       description: newFinance.description
@@ -130,9 +119,8 @@ watch(() => props.finance, (newFinance) => {
 // ─── Validasi ──────────────────────────────────────────────────────
 const validateForm = (): boolean => {
   errors.value = {}
-  if (!form.value.week.trim()) errors.value.week = 'Minggu wajib diisi'
-  if (!form.value.revenue || form.value.revenue < 0) errors.value.revenue = 'Pemasukan harus lebih dari atau sama dengan 0'
-  if (!form.value.expenses || form.value.expenses < 0) errors.value.expenses = 'Pengeluaran harus lebih dari atau sama dengan 0'
+  if (form.value.revenue === '' || form.value.revenue === null || form.value.revenue < 0) errors.value.revenue = 'Pemasukan harus lebih dari atau sama dengan 0'
+  if (form.value.expenses === '' || form.value.expenses === null || form.value.expenses < 0) errors.value.expenses = 'Pengeluaran harus lebih dari atau sama dengan 0'
   if (!form.value.description.trim()) errors.value.description = 'Deskripsi wajib diisi'
   return Object.keys(errors.value).length === 0
 }

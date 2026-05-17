@@ -17,7 +17,8 @@ export const productService = {
     formData.append('name', data.name)
     formData.append('price', data.price.toString())
     formData.append('description', data.description)
-    if (data.image) {
+    formData.append('type', data.type)
+    if (data.image instanceof File) {
       formData.append('image', data.image)
     }
     if (data.category) {
@@ -40,7 +41,8 @@ export const productService = {
     formData.append('name', data.name)
     formData.append('price', data.price.toString())
     formData.append('description', data.description)
-    if (data.image) {
+    formData.append('type', data.type)
+    if (data.image instanceof File) {
       formData.append('image', data.image)
     }
     if (data.category) {

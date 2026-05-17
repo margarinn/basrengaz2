@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\Article;
 use App\Models\Product;
 use App\Models\Transaction;
+use App\Models\Comment;
+use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -25,11 +27,10 @@ class DashboardController extends Controller
         return response()->json([
             'success' => true,
             'data' => [
-                'totalSales' => Product::count(),
-                'salesGrowth' => 0,
-                'revenue' => Transaction::totalIncome(),
-                'newReviews' => 0,
-                'totalCustomers' => 0,
+                'grossRevenue' => Transaction::totalIncome(),
+                'netRevenue' => Transaction::netBalance(),
+                'reviewCount' => Comment::count(),
+                'userCount' => User::count(),
                 'stats' => [
                     'total_products' => Product::count(),
                     'active_products' => Product::active()->count(),
@@ -55,10 +56,24 @@ class DashboardController extends Controller
      */
     public function orderStats(Request $request): JsonResponse
     {
-        // Return empty data for now — the frontend handles empty gracefully
+        $days = 7;
+        $data = [];
+        
+        for ($i = $days - 1; $i >= 0; $i--) {
+            $date = now()->subDays($i)->format('Y-m-d');
+            $count = \App\Models\Transaction::income()
+                ->whereDate('transaction_date', $date)
+                ->count();
+                
+            $data[] = [
+                'date' => $date,
+                'orders' => $count,
+            ];
+        }
+
         return response()->json([
             'success' => true,
-            'data' => [],
+            'data' => $data,
         ]);
     }
 
@@ -70,17 +85,55 @@ class DashboardController extends Controller
         $limit = $request->integer('limit', 5);
 
         $products = Product::active()
-            ->ordered()
+            ->latest()
             ->take($limit)
             ->get()
             ->map(fn ($p) => [
                 'name' => $p->name,
-                'orders' => $p->rating_count,
+                'orders' => $p->price, // fallback display
             ]);
 
         return response()->json([
             'success' => true,
             'data' => $products,
+        ]);
+    }
+
+    /**
+     * Finance overview (Earning vs Spending) for a given period.
+     */
+    public function financeOverview(Request $request): JsonResponse
+    {
+        $period = $request->query('period', 'month');
+        $query = \App\Models\Transaction::query();
+
+        $now = now();
+        switch ($period) {
+            case 'day':
+                $query->whereDate('transaction_date', $now->format('Y-m-d'));
+                break;
+            case 'week':
+                $query->whereBetween('transaction_date', [$now->copy()->startOfWeek()->format('Y-m-d'), $now->format('Y-m-d')]);
+                break;
+            case 'year':
+                $query->whereBetween('transaction_date', [$now->copy()->startOfYear()->format('Y-m-d'), $now->format('Y-m-d')]);
+                break;
+            case 'month':
+            default:
+                $query->whereBetween('transaction_date', [$now->copy()->startOfMonth()->format('Y-m-d'), $now->format('Y-m-d')]);
+                break;
+        }
+
+        $income = (clone $query)->income()->sum('amount');
+        $expense = (clone $query)->expense()->sum('amount');
+
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'income' => $income,
+                'expense' => $expense,
+                'period' => $period
+            ],
         ]);
     }
 }

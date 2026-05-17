@@ -19,7 +19,9 @@ class ProductFactory extends Factory
      */
     public function definition(): array
     {
-        $basrengVariants = [
+        $type = fake()->randomElement(['income', 'income', 'income', 'expense']);
+
+        $incomeProducts = [
             'Basreng Original',
             'Basreng Pedas Level 1',
             'Basreng Pedas Level 2',
@@ -32,12 +34,31 @@ class ProductFactory extends Factory
             'Basreng Sapi Panggang',
             'Basreng Mix Rasa',
             'Basreng Jumbo Pack',
+            'Makaroni Pedas',
+            'Kripik Kaca',
+            'Seblak Kering'
+        ];
+
+        $expenseProducts = [
+            'Plastik Kemasan 100g',
+            'Plastik Kemasan 250g',
+            'Minyak Goreng 2L',
+            'Bumbu Balado Bubuk 1kg',
+            'Bumbu Keju Bubuk 1kg',
+            'Stiker Label AZ-2',
+            'Gas Elpiji 3kg',
+            'Lakban Bening',
+            'Kardus Packing',
+            'Bubble Wrap'
         ];
 
         return [
-            'name' => fake()->unique()->randomElement($basrengVariants),
+            'name' => $type === 'income' 
+                ? fake()->unique()->randomElement($incomeProducts) 
+                : fake()->unique()->randomElement($expenseProducts),
+            'type' => $type,
             'description' => fake()->paragraph(3),
-            'price' => fake()->randomElement([5000, 8000, 10000, 12000, 15000, 20000, 25000]),
+            'price' => fake()->randomElement([5000, 8000, 10000, 12000, 15000, 20000, 25000, 50000, 100000]),
             'image' => null, // No default image in factory
             'is_active' => true,
             'sort_order' => fake()->numberBetween(0, 20),

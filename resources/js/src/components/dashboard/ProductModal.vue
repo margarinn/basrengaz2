@@ -132,7 +132,7 @@ const form = ref<ProductFormData>({
 })
 
 const resetForm = () => {
-  form.value = { name: '', price: 0, description: '', image: '' } // ← null → ''
+  form.value = { name: '', price: 0, description: '', image: '' }
   previewImage.value = ''
   errors.value = {}
 }
@@ -144,7 +144,7 @@ watch(() => props.product, (newProduct) => {
       name: newProduct.name,
       price: newProduct.price,
       description: newProduct.description,
-      image: newProduct.image, // ← langsung pakai string, tidak dikosongkan
+      image: newProduct.image,
     }
     previewImage.value = newProduct.image
   } else {
@@ -166,11 +166,10 @@ const onDrop = (e: DragEvent) => {
 }
 
 const loadImage = (file: File) => {
+  form.value.image = file // ← simpan sebagai File, bukan string base64
   const reader = new FileReader()
   reader.onload = (e) => {
-    const base64 = e.target?.result as string
-    form.value.image = base64  // ← simpan sebagai base64 string, bukan File
-    previewImage.value = base64
+    previewImage.value = e.target?.result as string
   }
   reader.readAsDataURL(file)
 }

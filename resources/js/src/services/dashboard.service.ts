@@ -1,5 +1,5 @@
 import api from './api'
-import type { DashboardStats, OrderStat, TopProduct, ApiResponse } from '@/types'
+import type { DashboardStats, OrderStat, TopProduct, FinanceOverviewStat, ApiResponse } from '@/types'
 
 export const dashboardService = {
   async getStats(): Promise<DashboardStats> {
@@ -17,6 +17,13 @@ export const dashboardService = {
   async getTopProducts(limit: number = 5): Promise<TopProduct[]> {
     const response = await api.get<ApiResponse<TopProduct[]>>('/dashboard/top-products', {
       params: { limit }
+    })
+    return response.data.data
+  },
+
+  async getFinanceOverview(period: 'day' | 'week' | 'month' | 'year' = 'month'): Promise<FinanceOverviewStat> {
+    const response = await api.get<ApiResponse<FinanceOverviewStat>>('/dashboard/finance-overview', {
+      params: { period }
     })
     return response.data.data
   }
