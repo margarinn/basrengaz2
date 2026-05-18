@@ -31,5 +31,9 @@ export const authService = {
   async updateProfile(data: Partial<User>): Promise<User> {
     const response = await api.put('/profile', data)
     return response.data.data
+  },
+
+  async updatePassword(data: any): Promise<void> {
+    await api.put('/profile/password', data)
   }
 }

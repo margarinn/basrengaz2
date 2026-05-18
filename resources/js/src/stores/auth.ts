@@ -95,6 +95,18 @@ export const useAuthStore = defineStore('auth', () => {
     }
   }
 
+  async function updatePassword(data: any) {
+    try {
+      await authService.updatePassword(data)
+      return { success: true }
+    } catch (err: any) {
+      return { 
+        success: false, 
+        message: err.response?.data?.message || 'Gagal memperbarui password' 
+      }
+    }
+  }
+
   async function forgotPassword(payload: ForgotPasswordPayload) {
     loading.value = true
     error.value = null
@@ -124,6 +136,7 @@ export const useAuthStore = defineStore('auth', () => {
     fetchProfile,
     initializeAuth,
     updateProfile,
+    updatePassword,
     forgotPassword
   }
 })

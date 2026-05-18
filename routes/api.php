@@ -42,6 +42,7 @@ Route::middleware(['auth:sanctum', 'web'])->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::get('/profile', [ProfileController::class, 'show']);
     Route::put('/profile', [ProfileController::class, 'update']);
+    Route::put('/profile/password', [ProfileController::class, 'updatePassword']);
 
     // Ratings (any authenticated user can create)
     Route::post('/rating', [RatingController::class, 'store']);

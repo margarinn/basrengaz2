@@ -70,7 +70,7 @@
 
           <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-end">
             <BaseButton v-if="!isEditing" variant="danger" @click="startEdit">
-              Edit
+              Edit Profil
             </BaseButton>
             <BaseButton v-if="isEditing" variant="danger" :loading="isSaving" @click="saveEdit">
               Simpan
@@ -80,6 +80,37 @@
             </BaseButton>
           </div>
         </div>
+      </BaseCard>
+
+      <!-- Change Password Section -->
+      <BaseCard padding="lg" title="Ganti Password">
+        <form @submit.prevent="handleChangePassword" class="space-y-6">
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <BaseInput
+              v-model="passwordForm.current_password"
+              label="Password Saat Ini"
+              type="password"
+              required
+            />
+            <BaseInput
+              v-model="passwordForm.password"
+              label="Password Baru"
+              type="password"
+              required
+            />
+            <BaseInput
+              v-model="passwordForm.password_confirmation"
+              label="Konfirmasi Password Baru"
+              type="password"
+              required
+            />
+          </div>
+          <div class="flex justify-end">
+            <BaseButton type="submit" variant="danger" :loading="isChangingPassword">
+              Update Password
+            </BaseButton>
+          </div>
+        </form>
       </BaseCard>
     </div>
   </div>
@@ -115,8 +146,15 @@ const form = reactive({
   gender: ''
 })
 
+const passwordForm = reactive({
+  current_password: '',
+  password: '',
+  password_confirmation: ''
+})
+
 const isEditing = ref(false)
 const isSaving = ref(false)
+const isChangingPassword = ref(false)
 
 const genderOptions = [
   { value: 'male', label: 'Laki-laki' },
@@ -165,6 +203,26 @@ const saveEdit = async () => {
   }
   
   isSaving.value = false
+}
+
+const handleChangePassword = async () => {
+  if (passwordForm.password !== passwordForm.password_confirmation) {
+    alert('Konfirmasi password tidak cocok.')
+    return
+  }
+
+  isChangingPassword.value = true
+  const result = await authStore.updatePassword(passwordForm)
+  
+  if (result.success) {
+    alert('Password berhasil diperbarui.')
+    passwordForm.current_password = ''
+    passwordForm.password = ''
+    passwordForm.password_confirmation = ''
+  } else {
+    alert(result.message)
+  }
+  isChangingPassword.value = false
 }
 
 const cancelEdit = () => {
