@@ -12,7 +12,10 @@ export const useAuthStore = defineStore('auth', () => {
 
   // Getters
   const isAuthenticated = computed(() => !!user.value)
-  const isAdmin = computed(() => user.value?.role === 'admin')
+  const isAdmin = computed(() => {
+    if (!user.value) return false
+    return user.value.role === 'admin' || (user.value as any).is_admin === true
+  })
   const userName = computed(() => user.value?.name || '')
   const userAvatar = computed(() => user.value?.avatar || '')
   const token = computed(() => isAuthenticated.value ? 'session' : '')
