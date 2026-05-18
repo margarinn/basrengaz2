@@ -17,10 +17,12 @@ const api: AxiosInstance = axios.create({
 api.interceptors.response.use(
   (response: AxiosResponse) => response,
   (error: AxiosError) => {
-    // If 401, redirect to login
+    // If 401, redirect to login, UNLESS it was just the initial profile check
     if (error.response?.status === 401) {
+      const isProfileCheck = error.config?.url === '/profile'
       const currentPath = window.location.pathname
-      if (currentPath !== '/login' && currentPath !== '/register') {
+      
+      if (!isProfileCheck && currentPath !== '/login' && currentPath !== '/register') {
         window.location.href = '/login'
       }
     }
