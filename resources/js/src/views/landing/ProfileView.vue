@@ -191,11 +191,6 @@ onMounted(async () => {
     await authStore.fetchProfile()
   }
 
-  if (authStore.isAdmin) {
-    router.push({ name: 'Dashboard' })
-    return
-  }
-
   syncProfile()
 })
 </script>
