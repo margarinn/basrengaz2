@@ -52,7 +52,8 @@ import {
   Newspaper,
   Star,
   TrendingUp,
-  LogOut
+  LogOut,
+  User
 } from 'lucide-vue-next'
 import { useAuthStore } from '@/stores/auth'
 
