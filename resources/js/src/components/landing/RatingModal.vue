@@ -137,7 +137,8 @@ const handleStarMove = (e: MouseEvent, starIndex: number) => {
 const handleStarClick = (e: MouseEvent, starIndex: number) => {
   const rect = (e.currentTarget as HTMLElement).getBoundingClientRect()
   const isLeftHalf = (e.clientX - rect.left) < (rect.width / 2)
-  form.value.rating = isLeftHalf ? starIndex - 0.5 : starIndex
+  const val = isLeftHalf ? starIndex - 0.5 : starIndex
+  form.value.rating = val
 }
 
 // ─── Reset sebelum watch ───────────────────────────────────────────
