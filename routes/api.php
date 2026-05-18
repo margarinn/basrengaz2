@@ -37,16 +37,14 @@ Route::get('/company-profile', [CompanyProfileController::class, 'show']);
 |--------------------------------------------------------------------------
 */
 
-Route::middleware('auth:sanctum')->group(function () {
+Route::middleware(['auth:sanctum', 'web'])->group(function () {
     // Auth
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::get('/profile', [ProfileController::class, 'show']);
     Route::put('/profile', [ProfileController::class, 'update']);
 
-    // Ratings (any authenticated user)
+    // Ratings (any authenticated user can create)
     Route::post('/rating', [RatingController::class, 'store']);
-    Route::put('/rating/{comment}', [RatingController::class, 'update']);
-    Route::delete('/rating/{comment}', [RatingController::class, 'destroy']);
 
     /*
     |----------------------------------------------------------------------
@@ -54,6 +52,10 @@ Route::middleware('auth:sanctum')->group(function () {
     |----------------------------------------------------------------------
     */
     Route::middleware('admin')->group(function () {
+        // Ratings Management
+        Route::put('/rating/{comment}', [RatingController::class, 'update']);
+        Route::delete('/rating/{comment}', [RatingController::class, 'destroy']);
+
         // Dashboard
         Route::get('/dashboard/stats', [DashboardController::class, 'stats']);
         Route::get('/dashboard/order-stats', [DashboardController::class, 'orderStats']);

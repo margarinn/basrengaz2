@@ -68,6 +68,7 @@
           <span v-else>{{ isEdit ? 'Simpan' : 'Add' }}</span>
         </button>
         <button
+          v-if="authStore.isAdmin && isEdit"
           @click="emit('delete')"
           class="px-6 py-2 text-sm font-semibold text-white bg-red-500 rounded-md hover:bg-red-600 transition-colors"
         >
@@ -83,6 +84,7 @@ import { ref, computed, watch } from 'vue'
 import BaseModal from '@/components/common/BaseModal.vue'
 import { Star } from 'lucide-vue-next'
 import type { Rating, RatingFormData } from '@/types'
+import { useAuthStore } from '@/stores/auth'
 
 interface Props {
   modelValue: boolean
@@ -101,6 +103,7 @@ const emit = defineEmits<{
 }>()
 
 // ─── State ─────────────────────────────────────────────────────────
+const authStore = useAuthStore()
 const errors = ref<Record<string, string>>({})
 
 const isOpen = computed({
