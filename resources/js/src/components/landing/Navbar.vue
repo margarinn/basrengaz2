@@ -24,13 +24,30 @@
           </button>
         </div>
 
-        <!-- User Icon -->
-        <div class="hidden md:flex items-center">
+        <!-- User Menu -->
+        <div class="hidden md:flex items-center space-x-4">
+          <div v-if="authStore.isAuthenticated" class="flex items-center gap-4">
+            <router-link
+              v-if="authStore.isAdmin"
+              to="/dashboard"
+              class="text-sm font-semibold text-primary hover:text-red-700 transition-colors"
+            >
+              Dashboard
+            </router-link>
+            <router-link
+              to="/profile"
+              class="p-2 rounded-full hover:bg-gray-100 transition-colors group relative"
+              title="Profile"
+            >
+              <User class="w-6 h-6 text-gray-600" />
+            </router-link>
+          </div>
           <router-link
-            to="/profile"
-            class="p-2 rounded-full hover:bg-gray-100 transition-colors"
+            v-else
+            to="/login"
+            class="text-sm font-semibold text-gray-700 hover:text-primary transition-colors"
           >
-            <User class="w-6 h-6 text-gray-600" />
+            Masuk
           </router-link>
         </div>
 
@@ -83,7 +100,9 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { User, Menu, X } from 'lucide-vue-next'
+import { useAuthStore } from '@/stores/auth'
 
+const authStore = useAuthStore()
 const activeSection = ref('home')
 const isMobileMenuOpen = ref(false)
 const isScrolled = ref(false)

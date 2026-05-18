@@ -75,7 +75,8 @@ const menuItems = [
   { name: 'Produk', path: '/dashboard/produk', icon: Package },
   { name: 'Berita', path: '/dashboard/berita', icon: Newspaper },
   { name: 'Rating', path: '/dashboard/rating', icon: Star },
-  { name: 'Keuangan', path: '/dashboard/keuangan', icon: TrendingUp }
+  { name: 'Keuangan', path: '/dashboard/keuangan', icon: TrendingUp },
+  { name: 'Profile', path: '/dashboard/profile', icon: User }
 ]
 
 const sidebarClasses = computed(() => {
