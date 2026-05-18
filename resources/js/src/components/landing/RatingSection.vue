@@ -154,7 +154,11 @@ const openAddModal = () => {
 
 const handleRatingSubmit = async (data: RatingFormData) => {
   try {
-    await ratingService.create(data)
+    await ratingService.create({
+      ...data,
+      commentable_type: 'product',
+      commentable_id: 1 // Default to Basreng AZ-2 product
+    })
     isRatingModalOpen.value = false
     await fetchRatings()
   } catch (err: any) {

@@ -129,9 +129,13 @@ const handleSubmit = async () => {
   if (success) {
     const redirect = route.query.redirect as string
     
-    // Jika ada redirect query, gunakan itu
+    // Jika ada redirect query, gunakan itu - tapi JANGAN ke dashboard jika bukan admin
     if (redirect) {
-      router.push(redirect)
+      if (redirect.startsWith('/dashboard') && !authStore.isAdmin) {
+        router.push('/')
+      } else {
+        router.push(redirect)
+      }
     } else {
       // Jika admin, ke dashboard; jika user biasa, ke landing page
       const targetRoute = authStore.isAdmin ? '/dashboard' : '/'

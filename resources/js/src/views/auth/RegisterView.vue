@@ -158,7 +158,12 @@ const handleSubmit = async () => {
   if (success) {
     const redirect = route.query.redirect as string
     if (redirect) {
-      router.push(redirect)
+      // Security: never redirect a new user to dashboard via query unless they are admin
+      if (redirect.startsWith('/dashboard') && !authStore.isAdmin) {
+        router.push('/')
+      } else {
+        router.push(redirect)
+      }
     } else {
       router.push('/')
     }

@@ -45,37 +45,37 @@ const dashboardRoutes = [
     path: '/dashboard',
     name: 'Dashboard',
     component: () => import('@/views/dashboard/DashboardView.vue'),
-    meta: { layout: 'dashboard' }
+    meta: { layout: 'dashboard', requiresAuth: true, requiresAdmin: true }
   },
   {
     path: '/dashboard/produk',
     name: 'DashboardProducts',
     component: () => import('@/views/dashboard/ProductsView.vue'),
-    meta: { layout: 'dashboard' }
+    meta: { layout: 'dashboard', requiresAuth: true, requiresAdmin: true }
   },
   {
     path: '/dashboard/berita',
     name: 'DashboardNews',
     component: () => import('@/views/dashboard/NewsView.vue'),
-    meta: { layout: 'dashboard' }
+    meta: { layout: 'dashboard', requiresAuth: true, requiresAdmin: true }
   },
   {
     path: '/dashboard/rating',
     name: 'DashboardRatings',
     component: () => import('@/views/dashboard/RatingsView.vue'),
-    meta: { layout: 'dashboard' }
+    meta: { layout: 'dashboard', requiresAuth: true, requiresAdmin: true }
   },
   {
     path: '/dashboard/keuangan',
     name: 'DashboardFinance',
     component: () => import('@/views/dashboard/FinanceView.vue'),
-    meta: { layout: 'dashboard' }
+    meta: { layout: 'dashboard', requiresAuth: true, requiresAdmin: true }
   },
   {
     path: '/dashboard/profile',
     name: 'DashboardProfile',
     component: () => import('@/views/dashboard/ProfileView.vue'),
-    meta: { layout: 'dashboard' }
+    meta: { layout: 'dashboard', requiresAuth: true, requiresAdmin: true }
   }
 ]
 
@@ -110,8 +110,15 @@ const router = createRouter({
 router.beforeEach((to, _from, next) => {
   const authStore = useAuthStore()
 
+  // 1. Check Authentication
   if (to.meta.requiresAuth && !authStore.isAuthenticated) {
     next({ name: 'Login', query: { redirect: to.fullPath } })
+    return
+  }
+
+  // 2. Check Admin Authorization
+  if (to.meta.requiresAdmin && !authStore.isAdmin) {
+    next({ name: 'Home' })
     return
   }
 
