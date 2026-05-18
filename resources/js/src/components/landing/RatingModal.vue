@@ -18,7 +18,7 @@
         <p v-if="errors.name" class="mt-1 text-xs text-red-500">{{ errors.name }}</p>
       </div>
 
-      <!-- Rating (Integer Only) -->
+      <!-- Rating (Decimal support) -->
       <div>
         <label class="block text-sm font-semibold text-red-500 mb-1">Rating</label>
         <div class="flex items-center gap-1" @mouseleave="hoverRating = 0">
@@ -26,15 +26,15 @@
             v-for="i in 5" 
             :key="i"
             class="relative cursor-pointer w-8 h-8"
-            @mouseenter="hoverRating = i"
-            @click="form.rating = i"
+            @mousemove="handleStarMove($event, i)"
+            @click="handleStarClick($event, i)"
           >
             <!-- Background star (gray) -->
             <Star class="absolute inset-0 w-8 h-8 text-gray-300" />
             <!-- Foreground star (filled, yellow) -->
             <div 
               class="absolute inset-0 overflow-hidden"
-              :style="{ width: (hoverRating || form.rating) >= i ? '100%' : '0%' }"
+              :style="{ width: getStarFillWidth(i) }"
             >
               <Star class="w-8 h-8 text-yellow-400 fill-current" />
             </div>
@@ -120,6 +120,25 @@ const form = ref<RatingFormData>({
 })
 
 const hoverRating = ref(0)
+
+const getStarFillWidth = (starIndex: number) => {
+  const currentVal = hoverRating.value || form.value.rating
+  if (currentVal >= starIndex) return '100%'
+  if (currentVal >= starIndex - 0.5) return '50%'
+  return '0%'
+}
+
+const handleStarMove = (e: MouseEvent, starIndex: number) => {
+  const rect = (e.currentTarget as HTMLElement).getBoundingClientRect()
+  const isLeftHalf = (e.clientX - rect.left) < (rect.width / 2)
+  hoverRating.value = isLeftHalf ? starIndex - 0.5 : starIndex
+}
+
+const handleStarClick = (e: MouseEvent, starIndex: number) => {
+  const rect = (e.currentTarget as HTMLElement).getBoundingClientRect()
+  const isLeftHalf = (e.clientX - rect.left) < (rect.width / 2)
+  form.value.rating = isLeftHalf ? starIndex - 0.5 : starIndex
+}
 
 // ─── Reset sebelum watch ───────────────────────────────────────────
 const resetForm = () => {

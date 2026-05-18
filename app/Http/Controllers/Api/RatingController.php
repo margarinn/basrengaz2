@@ -48,7 +48,7 @@ class RatingController extends Controller
     {
         $validated = $request->validate([
             'name' => 'sometimes|string|max:255',
-            'rating' => 'required|integer|between:1,5',
+            'rating' => 'required|numeric|between:1,5',
             'review' => 'required|string|max:1000',
             'commentable_type' => 'sometimes|string|in:product,article',
             'commentable_id' => 'sometimes|integer|min:1',
@@ -94,7 +94,7 @@ class RatingController extends Controller
     {
         $validated = $request->validate([
             'name' => 'sometimes|string|max:255',
-            'rating' => 'required|integer|between:1,5',
+            'rating' => 'required|numeric|between:1,5',
             'review' => 'required|string|max:1000',
         ]);
 
