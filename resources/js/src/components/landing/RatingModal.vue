@@ -6,8 +6,8 @@
     @close="handleClose"
   >
     <form @submit.prevent="handleSubmit" class="space-y-5">
-      <!-- Nama -->
-      <div>
+      <!-- Nama (Hidden if user is authenticated) -->
+      <div v-if="!authStore.isAuthenticated">
         <label class="block text-sm font-semibold text-red-500 mb-1">Nama</label>
         <input
           v-model="form.name"
@@ -18,7 +18,7 @@
         <p v-if="errors.name" class="mt-1 text-xs text-red-500">{{ errors.name }}</p>
       </div>
 
-      <!-- Rating -->
+      <!-- Rating (Integer Only) -->
       <div>
         <label class="block text-sm font-semibold text-red-500 mb-1">Rating</label>
         <div class="flex items-center gap-1" @mouseleave="hoverRating = 0">
@@ -26,15 +26,15 @@
             v-for="i in 5" 
             :key="i"
             class="relative cursor-pointer w-8 h-8"
-            @mousemove="handleStarMove($event, i)"
-            @click="handleStarClick($event, i)"
+            @mouseenter="hoverRating = i"
+            @click="form.rating = i"
           >
             <!-- Background star (gray) -->
             <Star class="absolute inset-0 w-8 h-8 text-gray-300" />
             <!-- Foreground star (filled, yellow) -->
             <div 
               class="absolute inset-0 overflow-hidden"
-              :style="{ width: getStarFillWidth(i) }"
+              :style="{ width: (hoverRating || form.rating) >= i ? '100%' : '0%' }"
             >
               <Star class="w-8 h-8 text-yellow-400 fill-current" />
             </div>
@@ -121,28 +121,13 @@ const form = ref<RatingFormData>({
 
 const hoverRating = ref(0)
 
-const getStarFillWidth = (starIndex: number) => {
-  const currentVal = hoverRating.value || form.value.rating
-  if (currentVal >= starIndex) return '100%'
-  if (currentVal >= starIndex - 0.5) return '50%'
-  return '0%'
-}
-
-const handleStarMove = (e: MouseEvent, starIndex: number) => {
-  const rect = (e.currentTarget as HTMLElement).getBoundingClientRect()
-  const isLeftHalf = (e.clientX - rect.left) < (rect.width / 2)
-  hoverRating.value = isLeftHalf ? starIndex - 0.5 : starIndex
-}
-
-const handleStarClick = (e: MouseEvent, starIndex: number) => {
-  const rect = (e.currentTarget as HTMLElement).getBoundingClientRect()
-  const isLeftHalf = (e.clientX - rect.left) < (rect.width / 2)
-  form.value.rating = isLeftHalf ? starIndex - 0.5 : starIndex
-}
-
 // ─── Reset sebelum watch ───────────────────────────────────────────
 const resetForm = () => {
-  form.value = { name: '', rating: 0, review: '' }
+  form.value = { 
+    name: authStore.isAuthenticated ? authStore.userName : '', 
+    rating: 0, 
+    review: '' 
+  }
   errors.value = {}
 }
 
@@ -162,7 +147,12 @@ watch(() => props.rating, (newRating) => {
 // ─── Validasi ──────────────────────────────────────────────────────
 const validateForm = (): boolean => {
   errors.value = {}
-  if (!form.value.name.trim()) errors.value.name = 'Nama wajib diisi'
+  
+  // If not authenticated, name is required from input
+  if (!authStore.isAuthenticated && !form.value.name.trim()) {
+    errors.value.name = 'Nama wajib diisi'
+  }
+  
   if (!form.value.rating || form.value.rating < 1 || form.value.rating > 5)
     errors.value.rating = 'Rating harus antara 1 sampai 5'
   if (!form.value.review.trim()) errors.value.review = 'Ulasan wajib diisi'
@@ -172,7 +162,10 @@ const validateForm = (): boolean => {
 // ─── Actions ───────────────────────────────────────────────────────
 const handleSubmit = () => {
   if (!validateForm()) return
-  emit('submit', { ...form.value })
+  
+  // Final safeguard for name
+  const finalName = authStore.isAuthenticated ? authStore.userName : form.value.name
+  emit('submit', { ...form.value, name: finalName })
 }
 
 const handleClose = () => {
