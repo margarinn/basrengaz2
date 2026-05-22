@@ -23,16 +23,24 @@ class AuthController extends Controller
             'password' => 'required|string',
         ]);
 
-        if (!Auth::attempt($request->only('email', 'password'), $request->boolean('remember'))) {
+        $user = User::where('email', $request->email)->first();
+
+        if (!$user) {
             return response()->json([
                 'success' => false,
-                'message' => 'Email atau password salah.',
+                'message' => 'Email tidak ditemukan',
+            ], 404);
+        }
+
+        if (!Hash::check($request->password, $user->password)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Password salah',
             ], 401);
         }
 
+        Auth::login($user, $request->boolean('remember'));
         $request->session()->regenerate();
-
-        $user = Auth::user();
 
         return response()->json([
             'success' => true,
@@ -57,8 +65,17 @@ class AuthController extends Controller
         $request->validate([
             'username' => 'required|string|max:255',
             'email' => 'required|string|lowercase|email|max:255|unique:' . User::class,
-            'phone' => 'required|string|max:20',
-            'password' => ['required', Rules\Password::defaults()],
+            'phone' => 'required|numeric|regex:/^[0-9]+$/',
+            'password' => ['required', 'string', 'min:8', Rules\Password::defaults()],
+        ], [
+            'username.required' => 'Username wajib diisi',
+            'email.required' => 'Email wajib diisi',
+            'email.email' => 'Email tidak valid',
+            'phone.required' => 'Nomor wajib diisi',
+            'phone.numeric' => 'Nomor tidak valid',
+            'phone.regex' => 'Nomor tidak valid',
+            'password.required' => 'Password wajib diisi',
+            'password.min' => 'Password minimal 8 karakter',
         ]);
 
         $user = User::create([
@@ -111,17 +128,31 @@ class AuthController extends Controller
     {
         $request->validate([
             'email' => 'required|email',
-            'phone' => 'required|string',
-            'password' => ['required', Rules\Password::defaults()],
+            'phone' => 'required|string|min:8',
+            'password' => ['required', 'string', 'min:8', Rules\Password::defaults()],
+        ], [
+            'email.required' => 'Email wajib diisi',
+            'email.email' => 'Email tidak valid',
+            'phone.required' => 'Nomor wajib diisi',
+            'phone.min' => 'Nomor minimal 8 karakter',
+            'password.required' => 'Password wajib diisi',
+            'password.min' => 'Password minimal 8 karakter',
         ]);
 
-        $user = User::where('email', $request->email)->where('phone', $request->phone)->first();
+        $user = User::where('email', $request->email)->first();
 
         if (!$user) {
             return response()->json([
                 'success' => false,
-                'message' => 'Kombinasi email dan nomor telepon tidak ditemukan.',
+                'message' => 'Email tidak ditemukan',
             ], 404);
+        }
+
+        if ($user->phone !== $request->phone) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Nomor salah',
+            ], 400);
         }
 
         $user->password = Hash::make($request->password);

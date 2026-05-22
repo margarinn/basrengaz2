@@ -33,7 +33,7 @@ class TransactionRequest extends FormRequest
                     if ($revenue > 0 && $value > 0) {
                         $fail('Tidak bisa mengisi pemasukan dan pengeluaran sekaligus.');
                     }
-                    if ($revenue == 0 && $value == 0) {
+                    if ($revenue <= 0 && $value <= 0) {
                         $fail('Nominal tidak boleh 0 keduanya.');
                     }
                 }
