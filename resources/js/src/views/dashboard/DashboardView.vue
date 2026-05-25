@@ -1,9 +1,15 @@
 <template>
   <div class="space-y-6">
     <!-- Page Title -->
-    <div>
-      <h1 class="text-2xl font-bold text-gray-900">Dashboard</h1>
-      <p class="text-gray-600">Selamat datang kembali, {{ userName }}!</p>
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div>
+        <h1 class="text-2xl font-bold text-gray-900">Dashboard</h1>
+        <p class="text-gray-600">Selamat datang kembali, {{ userName }}!</p>
+      </div>
+      <BaseButton @click="exportDashboardData" variant="secondary" outline class="self-start">
+        <Download class="w-5 h-5 mr-2" />
+        Export Laporan
+      </BaseButton>
     </div>
 
     <!-- Loading State -->
@@ -156,6 +162,33 @@ const currentFinancePeriod = ref<Period>('month')
 const setFinancePeriod = async (period: Period) => {
   currentFinancePeriod.value = period
   await dashboardStore.fetchFinanceOverview(period)
+}
+
+const exportDashboardData = () => {
+  const stats = dashboardStore.stats
+  const topProducts = dashboardStore.topProducts
+  
+  let csvContent = 'Ringkasan Dashboard\n'
+  csvContent += `Pendapatan Kotor,Rp ${new Intl.NumberFormat('id-ID').format(stats.grossRevenue)}\n`
+  csvContent += `Pendapatan Bersih,Rp ${new Intl.NumberFormat('id-ID').format(stats.netRevenue)}\n`
+  csvContent += `Total Ulasan,${stats.reviewCount}\n`
+  csvContent += `Total Pengguna,${stats.userCount}\n\n`
+  
+  csvContent += 'Top Produk,Nilai Penjualan\n'
+  topProducts.forEach(p => {
+    csvContent += `"${p.name.replace(/"/g, '""')}",Rp ${new Intl.NumberFormat('id-ID').format(p.orders)}\n`
+  })
+
+  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
+  const link = document.createElement('a')
+  const url = URL.createObjectURL(blob)
+  
+  link.setAttribute('href', url)
+  link.setAttribute('download', `ringkasan-dashboard-${new Date().toISOString().split('T')[0]}.csv`)
+  link.style.visibility = 'hidden'
+  document.body.appendChild(link)
+  link.click()
+  document.body.removeChild(link)
 }
 
 onMounted(() => {

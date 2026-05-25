@@ -95,31 +95,47 @@ class TransactionController extends Controller
     public function store(TransactionRequest $request): JsonResponse
     {
         $validated = $request->validated();
-        $revenue = $validated['revenue'];
-        $expenses = $validated['expenses'];
-        $type = $revenue > 0 ? 'income' : 'expense';
-        $amount = $revenue > 0 ? $revenue : $expenses;
+        $revenue = (int) $validated['revenue'];
+        $expenses = (int) $validated['expenses'];
+        $description = $validated['description'];
+        $userId = $request->user()->id;
+        $date = now();
 
-        $transaction = Transaction::create([
-            'user_id' => $request->user()->id,
-            'type' => $type,
-            'amount' => $amount,
-            'description' => $validated['description'],
-            'transaction_date' => now(),
-        ]);
+        $results = [];
 
-        $weekNumber = ceil($transaction->transaction_date->format('d') / 7);
-        $monthYear = $this->getIndonesianMonth($transaction->transaction_date);
+        if ($revenue > 0) {
+            $results[] = Transaction::create([
+                'user_id' => $userId,
+                'type' => 'income',
+                'amount' => $revenue,
+                'description' => $description,
+                'transaction_date' => $date,
+            ]);
+        }
+
+        if ($expenses > 0) {
+            $results[] = Transaction::create([
+                'user_id' => $userId,
+                'type' => 'expense',
+                'amount' => $expenses,
+                'description' => $description,
+                'transaction_date' => $date,
+            ]);
+        }
+        
+        // Fallback for 0/0 entry if allowed by validation
+        if (empty($results)) {
+             $results[] = Transaction::create([
+                'user_id' => $userId,
+                'type' => 'income',
+                'amount' => 0,
+                'description' => $description,
+                'transaction_date' => $date,
+            ]);
+        }
 
         return response()->json([
             'success' => true,
-            'data' => [
-                'id' => $transaction->id,
-                'week' => "Minggu ke-{$weekNumber} {$monthYear}",
-                'revenue' => $transaction->type === 'income' ? $transaction->amount : 0,
-                'expenses' => $transaction->type === 'expense' ? $transaction->amount : 0,
-                'description' => $transaction->description,
-            ],
             'message' => 'Transaksi berhasil ditambahkan.',
         ], 201);
     }
@@ -130,29 +146,26 @@ class TransactionController extends Controller
     public function update(TransactionRequest $request, Transaction $transaction): JsonResponse
     {
         $validated = $request->validated();
-        $revenue = $validated['revenue'];
-        $expenses = $validated['expenses'];
-        $type = $revenue > 0 ? 'income' : 'expense';
-        $amount = $revenue > 0 ? $revenue : $expenses;
-
-        $transaction->update([
-            'type' => $type,
-            'amount' => $amount,
-            'description' => $validated['description'],
-        ]);
-
-        $weekNumber = ceil($transaction->transaction_date->format('d') / 7);
-        $monthYear = $this->getIndonesianMonth($transaction->transaction_date);
+        $revenue = (int) $validated['revenue'];
+        $expenses = (int) $validated['expenses'];
+        
+        // If updating a record, we keep its original type but update amount
+        // If user swapped values, we might need complex logic, but for now:
+        // Update the current record based on its type
+        if ($transaction->type === 'income') {
+            $transaction->update([
+                'amount' => $revenue,
+                'description' => $validated['description'],
+            ]);
+        } else {
+            $transaction->update([
+                'amount' => $expenses,
+                'description' => $validated['description'],
+            ]);
+        }
 
         return response()->json([
             'success' => true,
-            'data' => [
-                'id' => $transaction->id,
-                'week' => "Minggu ke-{$weekNumber} {$monthYear}",
-                'revenue' => $transaction->type === 'income' ? $transaction->amount : 0,
-                'expenses' => $transaction->type === 'expense' ? $transaction->amount : 0,
-                'description' => $transaction->description,
-            ],
             'message' => 'Transaksi berhasil diperbarui.',
         ]);
     }

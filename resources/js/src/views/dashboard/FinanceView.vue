@@ -6,10 +6,16 @@
         <h1 class="text-2xl font-bold text-gray-900">Selamat Datang di Keuangan Kamu!</h1>
         <p class="text-gray-600">Kelola semua laporan keuangan.</p>
       </div>
-      <BaseButton @click="openAddModal" class="self-start">
-        <Plus class="w-5 h-5 mr-2" />
-        Tambah Laporan
-      </BaseButton>
+      <div class="flex gap-2 self-start">
+        <BaseButton @click="exportToCSV" variant="secondary" outline>
+          <Download class="w-5 h-5 mr-2" />
+          Export CSV
+        </BaseButton>
+        <BaseButton @click="openAddModal">
+          <Plus class="w-5 h-5 mr-2" />
+          Tambah Laporan
+        </BaseButton>
+      </div>
     </div>
 
     <!-- Filters -->
@@ -136,6 +142,39 @@ const paginatedFinance = computed(() => {
 watch(searchQuery, () => { currentPage.value = 1 })
 const onPageChange = (page: number) => { currentPage.value = page }
 const formatPrice = (price: number) => new Intl.NumberFormat('id-ID').format(price)
+
+const exportToCSV = () => {
+  if (finances.value.length === 0) {
+    alert('Tidak ada data untuk diexport')
+    return
+  }
+
+  const headers = ['No', 'Minggu', 'Pemasukan', 'Pengeluaran', 'Deskripsi', 'Tanggal']
+  const rows = finances.value.map((f, index) => [
+    index + 1,
+    f.week,
+    f.revenue,
+    f.expenses,
+    `"${f.description.replace(/"/g, '""')}"`,
+    f.transaction_date
+  ])
+
+  const csvContent = [
+    headers.join(','),
+    ...rows.map(r => r.join(','))
+  ].join('\n')
+
+  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
+  const link = document.createElement('a')
+  const url = URL.createObjectURL(blob)
+  
+  link.setAttribute('href', url)
+  link.setAttribute('download', `laporan-keuangan-${new Date().toISOString().split('T')[0]}.csv`)
+  link.style.visibility = 'hidden'
+  document.body.appendChild(link)
+  link.click()
+  document.body.removeChild(link)
+}
 
 const openAddModal = () => { selectedFinance.value = null; isModalOpen.value = true }
 const openEditModal = (finance: Finance) => { selectedFinance.value = finance; isModalOpen.value = true }
