@@ -61,7 +61,7 @@ class DashboardController extends Controller
         
         for ($i = $days - 1; $i >= 0; $i--) {
             $date = now()->subDays($i)->format('Y-m-d');
-            $count = \App\Models\Transaction::income()
+            $count = \App\Models\Transaction::where('revenue', '>', 0)
                 ->whereDate('transaction_date', $date)
                 ->count();
                 
@@ -124,8 +124,8 @@ class DashboardController extends Controller
                 break;
         }
 
-        $income = (clone $query)->income()->sum('amount');
-        $expense = (clone $query)->expense()->sum('amount');
+        $income = (clone $query)->sum('revenue');
+        $expense = (clone $query)->sum('expenses');
 
         return response()->json([
             'success' => true,

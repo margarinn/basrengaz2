@@ -13,18 +13,12 @@ class Transaction extends Model
     use HasFactory, SoftDeletes;
 
     /**
-     * Transaction type constants.
-     */
-    const TYPE_INCOME = 'income';
-    const TYPE_EXPENSE = 'expense';
-
-    /**
      * The attributes that are mass assignable.
      */
     protected $fillable = [
         'user_id',
-        'type',
-        'amount',
+        'revenue',
+        'expenses',
         'description',
         'transaction_date',
     ];
@@ -35,7 +29,8 @@ class Transaction extends Model
     protected function casts(): array
     {
         return [
-            'amount' => 'integer',
+            'revenue' => 'integer',
+            'expenses' => 'integer',
             'transaction_date' => 'date',
         ];
     }
@@ -51,22 +46,6 @@ class Transaction extends Model
     }
 
     // ── Scopes ──────────────────────────────────────────
-
-    /**
-     * Scope to only income transactions (pemasukan).
-     */
-    public function scopeIncome(Builder $query): Builder
-    {
-        return $query->where('type', self::TYPE_INCOME);
-    }
-
-    /**
-     * Scope to only expense transactions (pengeluaran).
-     */
-    public function scopeExpense(Builder $query): Builder
-    {
-        return $query->where('type', self::TYPE_EXPENSE);
-    }
 
     /**
      * Scope to transactions within a date range.
@@ -95,39 +74,19 @@ class Transaction extends Model
     // ── Accessors ───────────────────────────────────────
 
     /**
-     * Get the amount formatted as Indonesian Rupiah.
+     * Get the revenue formatted as Indonesian Rupiah.
      */
-    public function getFormattedAmountAttribute(): string
+    public function getFormattedRevenueAttribute(): string
     {
-        return 'Rp ' . number_format($this->amount, 0, ',', '.');
+        return 'Rp ' . number_format($this->revenue, 0, ',', '.');
     }
 
     /**
-     * Check if this is an income transaction.
+     * Get the expenses formatted as Indonesian Rupiah.
      */
-    public function getIsIncomeAttribute(): bool
+    public function getFormattedExpensesAttribute(): string
     {
-        return $this->type === self::TYPE_INCOME;
-    }
-
-    /**
-     * Check if this is an expense transaction.
-     */
-    public function getIsExpenseAttribute(): bool
-    {
-        return $this->type === self::TYPE_EXPENSE;
-    }
-
-    /**
-     * Get the type label in Indonesian.
-     */
-    public function getTypeLabelAttribute(): string
-    {
-        return match ($this->type) {
-            self::TYPE_INCOME => 'Pemasukan',
-            self::TYPE_EXPENSE => 'Pengeluaran',
-            default => $this->type,
-        };
+        return 'Rp ' . number_format($this->expenses, 0, ',', '.');
     }
 
     // ── Static Helpers ──────────────────────────────────
@@ -137,9 +96,7 @@ class Transaction extends Model
      */
     public static function totalIncome(?string $startDate = null, ?string $endDate = null): int
     {
-        return self::income()
-            ->inDateRange($startDate, $endDate)
-            ->sum('amount');
+        return self::inDateRange($startDate, $endDate)->sum('revenue');
     }
 
     /**
@@ -147,9 +104,7 @@ class Transaction extends Model
      */
     public static function totalExpense(?string $startDate = null, ?string $endDate = null): int
     {
-        return self::expense()
-            ->inDateRange($startDate, $endDate)
-            ->sum('amount');
+        return self::inDateRange($startDate, $endDate)->sum('expenses');
     }
 
     /**
