@@ -7,10 +7,6 @@
         <p class="text-gray-600">Kelola semua laporan keuangan.</p>
       </div>
       <div class="flex gap-2 self-start">
-        <BaseButton @click="exportToCSV" variant="secondary" outline>
-          <Download class="w-5 h-5 mr-2" />
-          Export CSV
-        </BaseButton>
         <BaseButton @click="openAddModal">
           <Plus class="w-5 h-5 mr-2" />
           Tambah Laporan
