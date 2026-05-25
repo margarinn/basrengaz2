@@ -42,7 +42,7 @@ export interface News {
 
 export interface NewsFormData {
   title: string
-  image: string
+  image: string | File
   description: string
 }
 

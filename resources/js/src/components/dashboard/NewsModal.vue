@@ -153,11 +153,10 @@ const onDrop = (e: DragEvent) => {
 }
 
 const loadImage = (file: File) => {
+  form.value.image = file  // Store the actual File object
   const reader = new FileReader()
   reader.onload = (e) => {
-    const base64 = e.target?.result as string
-    form.value.image = base64  // ← simpan sebagai base64 string, bukan File
-    previewImage.value = base64
+    previewImage.value = e.target?.result as string
   }
   reader.readAsDataURL(file)
 }

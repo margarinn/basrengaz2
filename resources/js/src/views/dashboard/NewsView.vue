@@ -143,10 +143,13 @@ const handleSubmit = async (formData: NewsFormData) => {
     const fd = new FormData()
     fd.append('title', formData.title)
     fd.append('body', formData.description)
-    fd.append('is_published', 'true')
+    fd.append('is_published', '1')
+    
+    // Only append image if it's a new file upload
     if (formData.image instanceof File) {
       fd.append('image', formData.image)
     }
+    
     if (selectedNews.value) {
       await newsService.update(selectedNews.value.id, fd)
     } else {
