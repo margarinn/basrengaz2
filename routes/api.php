@@ -17,7 +17,7 @@ use Illuminate\Support\Facades\Route;
 */
 
 // Auth
-Route::middleware('web')->group(function () {
+Route::group(function () {
     Route::post('/login', [AuthController::class, 'login']);
     Route::post('/register', [AuthController::class, 'register']);
     Route::post('/forgot-password', [AuthController::class, 'forgotPassword']);
@@ -37,7 +37,7 @@ Route::get('/company-profile', [CompanyProfileController::class, 'show']);
 |--------------------------------------------------------------------------
 */
 
-Route::middleware(['auth:sanctum', 'web'])->group(function () {
+Route::middleware(['auth:sanctum'])->group(function () {
     // Auth
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::get('/profile', [ProfileController::class, 'show']);
