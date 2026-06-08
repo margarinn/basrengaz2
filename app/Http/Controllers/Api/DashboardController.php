@@ -21,8 +21,8 @@ class DashboardController extends Controller
         $currentYear = now()->year;
         $currentMonth = now()->month;
 
-        $monthlyIncome = Transaction::inMonth($currentYear, $currentMonth)->income()->sum('amount');
-        $monthlyExpense = Transaction::inMonth($currentYear, $currentMonth)->expense()->sum('amount');
+        $monthlyIncome = Transaction::inMonth($currentYear, $currentMonth)->sum('revenue');
+        $monthlyExpense = Transaction::inMonth($currentYear, $currentMonth)->sum('expenses');
 
         return response()->json([
             'success' => true,
