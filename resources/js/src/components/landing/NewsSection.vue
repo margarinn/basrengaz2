@@ -30,13 +30,17 @@
           <template #default="{ item: item }">
             <article class="flex-shrink-0">
               <div class="px-2">
-                <div class="card group cursor-pointer">
-                  <div class="relative overflow-hidden rounded-xl">
+                <div class="card group cursor-pointer relative z-0">
+                  <div class="relative overflow-hidden rounded-xl bg-gray-100 z-0">
                     <img
+                      v-if="item.image"
                       :src="item.image"
                       :alt="item.title"
-                      class="w-full h-48 object-cover transform group-hover:scale-110 transition-transform duration-500"
+                      class="w-full h-48 object-cover transform group-hover:scale-110 transition-transform duration-500 block transform-gpu"
                     />
+                    <div v-else class="w-full h-48 flex items-center justify-center">
+                      <span class="text-gray-400">No Image</span>
+                    </div>
                   </div>
                   <div class="p-5">
                     <h3 class="text-lg font-semibold text-gray-900 mb-2 group-hover:text-primary transition-colors">
