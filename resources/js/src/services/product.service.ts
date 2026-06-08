@@ -18,8 +18,8 @@ export const productService = {
     formData.append('price', data.price.toString())
     formData.append('description', data.description)
     formData.append('type', data.type)
-    if (data.image instanceof File) {
-      formData.append('image', data.image)
+    if (data.image && typeof data.image !== 'string') {
+      formData.append('image', data.image as Blob)
     }
     if (data.category) {
       formData.append('category', data.category)
@@ -42,8 +42,8 @@ export const productService = {
     formData.append('price', data.price.toString())
     formData.append('description', data.description)
     formData.append('type', data.type)
-    if (data.image instanceof File) {
-      formData.append('image', data.image)
+    if (data.image && typeof data.image !== 'string') {
+      formData.append('image', data.image as Blob)
     }
     if (data.category) {
       formData.append('category', data.category)

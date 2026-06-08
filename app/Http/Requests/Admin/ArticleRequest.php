@@ -28,7 +28,7 @@ class ArticleRequest extends FormRequest
                 'nullable',
                 'image',
                 'mimes:jpeg,png,jpg,webp',
-                'max:2048', // 2MB max
+                'max:51200', // 50MB max
             ],
             'is_published' => ['sometimes', 'boolean'],
             'published_at' => ['nullable', 'date'],
